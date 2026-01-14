@@ -1,0 +1,12 @@
+duckdb_iceberg:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', './data/duckdb/main.duckdb') }}"
+      extensions:
+        - httpfs
+        - parquet
+      settings:
+        enable_object_cache: true
+        enable_http_metadata_cache: true
