@@ -1,0 +1,17 @@
+{
+    "sqltools.connections": [
+        {
+            "server": "http://192.168.1.69",
+            "port": 8123,
+            "database": "default",
+            "useJWT": false,
+            "requestTimeout": 30000,
+            "enableTls": false,
+            "previewLimit": 50,
+            "username": "admin",
+            "driver": "ClickHouse",
+            "name": "doctor-data",
+            "askForPassword": true
+        }
+    ]
+}
