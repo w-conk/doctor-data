@@ -16,16 +16,9 @@ This crap is running on a $20 lenovo
 ┌─────────────────────────────────────────────────────────────┐
 │              Lenovo ThinkCentre (Execution)                 │
 │  ┌──────────────────────────────────────────────────────┐  │
-│  │  Orchestration Layer (Apache Airflow)                │  │
-│  │  - DAG scheduling and execution                       │  │
-│  │  - Task dependency management                         │  │
-│  └──────────────┬───────────────────────────────────────┘  │
-│                 │                                           │
-│  ┌──────────────▼───────────────────────────────────────┐  │
 │  │  Data Ingestion Layer (dlt)                           │  │
 │  │  - dlt pipelines for API data extraction              │  │
-│  │  - Orchestrated via Airflow DAGs                      │  │
-│  │  - Raw data storage (local SSD: 500GB)                 │  │
+│  │  - Raw data storage (local SSD: 500GB)                │  │
 │  └──────────────┬───────────────────────────────────────┘  │
 │                 │                                           │
 │  ┌──────────────▼───────────────────────────────────────┐  │
@@ -56,9 +49,8 @@ This crap is running on a $20 lenovo
 ```
 
 ### Current Setup (500GB SSD)
-- **Orchestration**: Apache Airflow (Docker) - DAG scheduling and task management
 - **Data Ingestion**: dlt (data load tool) pipelines
-  - HackerNews API pipeline (runs every 6 hours)
+  - HackerNews API pipeline
   - Loads directly into ClickHouse
 - **Raw data**: `~/data/raw/` - Temporary staging
 - **Iceberg tables**: `~/data/iceberg/` - Parquet files organized by table

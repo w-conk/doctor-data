@@ -142,25 +142,6 @@ pipeline = dlt.pipeline(
 
 
 if __name__ == "__main__":
-    # Debug: Print pipeline config
-    print(f"Pipeline name: {pipeline.pipeline_name}")
-    print(f"Destination: {pipeline.destination}")
-    print(f"Dataset: {pipeline.dataset_name}")
-    
-    # Debug: Try to see what dlt is reading for ClickHouse config
-    try:
-        from dlt.destinations.impl.clickhouse.clickhouse import ClickHouseClient
-        from dlt.common.configuration.resolve import resolve_configuration
-        from dlt.destinations.impl.clickhouse.configuration import ClickHouseClientConfiguration
-        
-        # Try to resolve the config to see what it's reading
-        config = resolve_configuration(ClickHouseClientConfiguration(), sections=("destination", "clickhouse"))
-        print(f"Resolved ClickHouse host: {config.credentials.host}")
-        print(f"Resolved ClickHouse port: {config.credentials.port}")
-        print(f"Resolved ClickHouse database: {config.credentials.database}")
-    except Exception as e:
-        print(f"Could not resolve config: {e}")
-    
     source = hacker_news_api_load()
     load_info = pipeline.run(source)
     print(load_info) 
