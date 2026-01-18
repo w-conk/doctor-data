@@ -10,4 +10,4 @@ clickhouse-service:
       port: [ 8123 ]  # Defaults to 8123, 8443, 9000, 9440 depending on the secure and driver settings 
       user: [ default ]  # User for all database operations
       password: [ <empty string> ]  # Password for the user
-      secure: [ False ]  # Use TLS (native protocol) or HTTPS (http protocol)
+      secure: [ False ]  # Use TLS (native protocol) or HTTPS (http protocol) 
