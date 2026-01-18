@@ -52,7 +52,7 @@ services:
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./dlt:/opt/airflow/dlt
-      - ./dlt/.dlt:/opt/airflow/dlt/.dlt
+      - ./dlt/.dlt:/opt/airflow/dlt/hacker-news/.dlt
     ports:
       - "8080:8080"
     command: webserver
@@ -77,7 +77,7 @@ services:
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./dlt:/opt/airflow/dlt
-      - ./dlt/.dlt:/opt/airflow/dlt/.dlt
+      - ./dlt/.dlt:/opt/airflow/dlt/hacker-news/.dlt
     command: scheduler
     restart: unless-stopped
     networks:

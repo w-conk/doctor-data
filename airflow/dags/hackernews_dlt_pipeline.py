@@ -28,10 +28,10 @@ with DAG(
 ) as dag:
     
     # Task to run the dlt pipeline
-    # Note: Run from dlt root so .dlt/secrets.toml is found
+    # Note: Run from hacker-news directory so .dlt/secrets.toml is found relative to script
     run_pipeline = BashOperator(
         task_id='run_hackernews_pipeline',
-        bash_command='cd /opt/airflow/dlt && python hacker-news/hackernews-load.py',
+        bash_command='cd /opt/airflow/dlt/hacker-news && python hackernews-load.py',
         env={
             'PYTHONPATH': '/opt/airflow/dlt:/opt/airflow',
         },
