@@ -131,7 +131,7 @@ def hacker_news_api_load():
 
 
 pipeline = dlt.pipeline(
-    pipeline_name='unknown_source_migration_pipeline',
+    pipeline_name='hackernews_pipeline',
     destination='clickhouse',
     dataset_name='hackernews',
     # `refresh="drop_sources"` ensures the data and the state is cleaned
