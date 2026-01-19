@@ -1,0 +1,11 @@
+sources:
+  - name: hackernews
+    database: dlt  
+    schema: dlt  
+    tables:
+      - name: hackernews__topstories
+      - name: hackernews__newstories
+      - name: hackernews__beststories
+      - name: hackernews__items
+      - name: hackernews__items__kids
+      - name: hackernews__users
