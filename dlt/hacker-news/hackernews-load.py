@@ -6,7 +6,7 @@ from typing import Set
 
 
 @dlt.source
-def hacker_news_api_source(lookback_items: int = 1000):
+def hacker_news_api_source(lookback_items: int = 10000):
     """
     HackerNews API source that fetches items in a range from the current maxitem.
     
@@ -71,15 +71,11 @@ if __name__ == "__main__":
         pipeline_name='hackernews_pipeline',
         destination='clickhouse',
         dataset_name='hackernews',
-        # `refresh="drop_sources"` ensures the data and the state is cleaned
-        # on each `pipeline.run()`; remove the argument once you have a
-        # working pipeline.
-        refresh="drop_sources",
     )
 
     # Run the source
-    # Start with 1000 items (~few hours of data) to verify it's fast
-    source = hacker_news_api_source(lookback_items=1000)
+    # Fetch 10,000 items (~1-2 days of data) to ensure we don't miss items between runs
+    source = hacker_news_api_source(lookback_items=10000)
     
     print("Running pipeline...")
     load_info = pipeline.run(source)

@@ -57,4 +57,10 @@ def hackernews_ingestion_flow():
 
 
 if __name__ == "__main__":
-    hackernews_ingestion_flow()
+    # Run with scheduling - this creates a deployment that runs on a schedule
+    # The flow will run every 6 hours
+    hackernews_ingestion_flow.serve(
+        name="hackernews-daily",
+        cron="0 */12 * * *"
+        tags=["hackernews", "daily"]
+    )
