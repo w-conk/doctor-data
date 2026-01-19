@@ -61,6 +61,6 @@ if __name__ == "__main__":
     # The flow will run every 6 hours
     hackernews_ingestion_flow.serve(
         name="hackernews-daily",
-        cron="0 */12 * * *"
+        cron="0 */12 * * *",
         tags=["hackernews", "daily"]
     )
