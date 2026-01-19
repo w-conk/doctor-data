@@ -4,6 +4,9 @@ python-dotenv>=1.0.0
 schedule>=1.2.0
 dlt>=0.110.0
 
+# Orchestration
+prefect>=3.0.0
+
 # Data Processing
 pandas>=2.1.0
 pyarrow>=14.0.0
