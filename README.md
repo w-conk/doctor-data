@@ -6,51 +6,62 @@ This crap is running on a $20 lenovo
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    MacBook Pro (Development)                 │
+│                    MacBook Pro (Development)                │
 │  - Code editing via VS Code/Cursor                          │
-│  - Git repository management                                 │
-│  - SSH into Lenovo for execution                             │
+│  - Git repository management                                │
+│  - SSH into Lenovo for execution                            │
 └──────────────────────┬──────────────────────────────────────┘
                        │ SSH
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
 │              Lenovo ThinkCentre (Execution)                 │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │  Data Ingestion Layer (dlt)                           │  │
-│  │  - dlt pipelines for API data extraction              │  │
-│  │  - Raw data storage (local SSD: 500GB)                │  │
-│  └──────────────┬───────────────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  Orchestration Layer (Prefect)                       │   │
+│  │  - Flow scheduling and execution                     │   │
+│  │  - Task dependency management                        │   │
+│  │                                                      │   │
+│  └──────────────┬───────────────────────────────────────┘   │
 │                 │                                           │
-│  ┌──────────────▼───────────────────────────────────────┐  │
-│  │  Storage Layer                                        │  │
-│  │  - Apache Iceberg (Parquet files)                    │  │
-│  │  - ClickHouse (columnar warehouse)                   │  │
-│  └──────────────┬───────────────────────────────────────┘  │
+│  ┌──────────────▼───────────────────────────────────────┐   │
+│  │  Data Ingestion Layer (dlt)                          │   │
+│  │  - dlt pipelines for API data extraction             │   │
+│  │  - Orchestrated via Prefect flows                    │   │
+│  │  - Raw data storage (local SSD: 500GB)               │   │
+│  └──────────────┬───────────────────────────────────────┘   │
 │                 │                                           │
-│  ┌──────────────▼───────────────────────────────────────┐  │
-│  │  Transformation Layer (dbt Core)                     │  │
-│  │  - dbt-duckdb (Iceberg transformations)             │  │
-│  │  - dbt-clickhouse (ClickHouse transformations)       │  │
-│  └──────────────┬───────────────────────────────────────┘  │
+│  ┌──────────────▼───────────────────────────────────────┐   │
+│  │  Storage Layer                                       │   │
+│  │  - Apache Iceberg (Parquet files)                    │   │
+│  │  - ClickHouse (columnar warehouse)                   │   │
+│  └──────────────┬───────────────────────────────────────┘   │
 │                 │                                           │
-│  ┌──────────────▼───────────────────────────────────────┐  │
-│  │  Analytics Layer                                      │  │
-│  │  - DuckDB (query engine)                             │  │
-│  │  - ClickHouse (OLAP queries)                         │  │
-│  └──────────────────────────────────────────────────────┘  │
+│  ┌──────────────▼───────────────────────────────────────┐   │
+│  │  Transformation Layer (dbt Core)                     │   │
+│  │  - dbt-duckdb (Iceberg transformations)              │   │
+│  │  - dbt-clickhouse (ClickHouse transformations)       │   │
+│  └──────────────┬───────────────────────────────────────┘   │
+│                 │                                           │
+│  ┌──────────────▼───────────────────────────────────────┐   │
+│  │  - DuckDB (query engine)                             │   │
+│  │  - ClickHouse (OLAP queries)                         │   │
+│  │  Analytics Layer                                     │   │
+│  └──────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  NAS (~30TB) - Long-term storage                             │
-│  - Archive old data                                          │
-│  - Backup storage                                            │
+│  NAS (~30TB) - Long-term storage                            │
+│  - Archive old data                                         │
+│  - Backup storage                                           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ### Current Setup (500GB SSD)
+- **Orchestration**: Prefect (Docker) - Flow scheduling and task management
+  - Prefect server running in Docker
+  - Flows execute on Lenovo machine
 - **Data Ingestion**: dlt (data load tool) pipelines
-  - HackerNews API pipeline
+  - HackerNews API pipeline (orchestrated via Prefect)
   - Loads directly into ClickHouse
 - **Raw data**: `~/data/raw/` - Temporary staging
 - **Iceberg tables**: `~/data/iceberg/` - Parquet files organized by table
