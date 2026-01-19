@@ -1,147 +1,86 @@
-"""HackerNews API pipeline using dlt REST API source."""
+"""HackerNews API pipeline using dlt."""
 
 import dlt
 import requests
-from dlt.sources.rest_api import rest_api_source
+from typing import Set
 
 
 @dlt.source
-def hacker_news_api_load():
-    """HackerNews API source with story lists, items, and users."""
+def hacker_news_api_source(lookback_items: int = 1000):
+    """
+    HackerNews API source that fetches items in a range from the current maxitem.
+    
+    Args:
+        lookback_items: Number of items to fetch back from the current maxitem.
+                        10,000 is roughly 1-2 days of data.
+    """
     base_url = "https://hacker-news.firebaseio.com/v0/"
     
-    # Story ID lists using REST API source
-    story_source = rest_api_source({
-        "client": {
-            "base_url": base_url,
-        },
-        "resource_defaults": {
-            "primary_key": "id",
-            "write_disposition": "merge",
-        },
-        "resources": [
-            {
-                "name": "topstories",
-                "primary_key": None,
-                "endpoint": {
-                    "path": "topstories.json",
-                },
-            },
-            {
-                "name": "newstories",
-                "primary_key": None,
-                "endpoint": {
-                    "path": "newstories.json",
-                },
-            },
-            {
-                "name": "beststories",
-                "primary_key": None,
-                "endpoint": {
-                    "path": "beststories.json",
-                },
-            },
-        ],
-    })
-    
-    # Yield story resources
-    for resource in story_source.resources.values():
-        yield resource
-    
-    # Items endpoint - fetch item details for all story IDs
+    # Track usernames encountered to fetch profiles later
+    usernames: Set[str] = set()
+
     @dlt.resource(name="items", write_disposition="merge", primary_key="id")
     def items_resource():
-        """Fetch item details for all story IDs from topstories, newstories, and beststories."""
-        # Get all story IDs from the story lists
-        story_ids = set()
+        """Fetch a range of items (stories, comments, etc.) starting from maxitem."""
+        # Get the current max item ID
+        max_item_response = requests.get(f"{base_url}maxitem.json")
+        if max_item_response.status_code != 200:
+            print("Failed to fetch maxitem.json")
+            return
         
-        print("Fetching story ID lists...")
-        # Fetch story ID lists
-        for story_type in ["topstories", "newstories", "beststories"]:
-            response = requests.get(f"{base_url}{story_type}.json")
-            if response.status_code == 200:
-                ids = response.json()
-                story_ids.update(ids)
-                print(f"  {story_type}: {len(ids)} IDs")
+        max_id = max_item_response.json()
+        start_id = max_id - lookback_items
         
-        print(f"Total unique story IDs: {len(story_ids)}")
-        print("Fetching item details...")
+        print(f"Fetching items from ID {start_id} to {max_id} ({lookback_items} items)...")
         
-        # Fetch item details for each ID
         count = 0
-        for item_id in story_ids:
+        for item_id in range(start_id, max_id + 1):
             response = requests.get(f"{base_url}item/{item_id}.json")
             if response.status_code == 200:
                 item = response.json()
-                if item:  # Some items might be None (deleted)
+                if item:
                     yield item
                     count += 1
-                    if count % 50 == 0:
+                    if count % 100 == 0:
                         print(f"  Fetched {count} items...")
         
-        print(f"Finished fetching {count} items")
-    
-    yield items_resource
-    
-    # Users endpoint - fetch user profiles from items
-    @dlt.resource(name="users", write_disposition="merge", primary_key="id")
-    def users_resource():
-        """Fetch user profiles for authors from items."""
-        print("Collecting usernames from items...")
-        usernames = set()
-        
-        # Get all story IDs and fetch items to collect usernames
-        story_ids = set()
-        for story_type in ["topstories", "newstories", "beststories"]:
-            response = requests.get(f"{base_url}{story_type}.json")
-            if response.status_code == 200:
-                ids = response.json()
-                story_ids.update(ids)
-        
-        # Fetch items to get usernames
-        count = 0
-        for item_id in story_ids:
-            response = requests.get(f"{base_url}item/{item_id}.json")
-            if response.status_code == 200:
-                item = response.json()
-                if item and isinstance(item, dict) and "by" in item:
-                    usernames.add(item["by"])
-                count += 1
-                if count % 50 == 0:
-                    print(f"  Processed {count} items, found {len(usernames)} unique users...")
-        
-        print(f"Found {len(usernames)} unique users")
-        print("Fetching user profiles...")
-        
-        # Fetch user details
-        user_count = 0
-        for username in usernames:
+        print(f"Finished fetching {count} items.")
+
+    @dlt.transformer(data_from=items_resource, name="users", write_disposition="merge", primary_key="id")
+    def users_resource(item):
+        """
+        Fetch user profile for the author of an item.
+        The transformer receives each 'item' yielded by items_resource.
+        """
+        username = item.get("by")
+        if username and username not in usernames:
+            usernames.add(username)
             response = requests.get(f"{base_url}user/{username}.json")
             if response.status_code == 200:
                 user = response.json()
                 if user:
                     yield user
-                    user_count += 1
-                    if user_count % 25 == 0:
-                        print(f"  Fetched {user_count} users...")
-        
-        print(f"Finished fetching {user_count} users")
-    
-    yield users_resource
 
 
-pipeline = dlt.pipeline(
-    pipeline_name='hackernews_pipeline',
-    destination='clickhouse',
-    dataset_name='hackernews',
-    # `refresh="drop_sources"` ensures the data and the state is cleaned
-    # on each `pipeline.run()`; remove the argument once you have a
-    # working pipeline.
-    refresh="drop_sources",
-)
+    return [items_resource, users_resource]
 
 
 if __name__ == "__main__":
-    source = hacker_news_api_load()
+    # Create the pipeline
+    pipeline = dlt.pipeline(
+        pipeline_name='hackernews_pipeline',
+        destination='clickhouse',
+        dataset_name='hackernews',
+        # `refresh="drop_sources"` ensures the data and the state is cleaned
+        # on each `pipeline.run()`; remove the argument once you have a
+        # working pipeline.
+        refresh="drop_sources",
+    )
+
+    # Run the source
+    # Start with 1000 items (~few hours of data) to verify it's fast
+    source = hacker_news_api_source(lookback_items=1000)
+    
+    print("Running pipeline...")
     load_info = pipeline.run(source)
-    print(load_info) 
+    print(load_info)

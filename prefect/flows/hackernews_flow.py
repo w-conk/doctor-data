@@ -13,17 +13,17 @@ import subprocess
 @task(name="run_hackernews_pipeline", log_prints=True)
 def run_hackernews_dlt_pipeline():
     """Run the HackerNews dlt pipeline."""
-    #get path to the dlt pipeline script
+    # Get paths - run from dlt/ directory so dlt finds .dlt/secrets.toml
     project_root = Path(__file__).parent.parent.parent
-    pipeline_script = project_root / "dlt" / "hacker-news" / "hackernews-load.py"
-    script_dir = pipeline_script.parent
+    dlt_dir = project_root / "dlt"
+    pipeline_script = dlt_dir / "hacker-news" / "hackernews-load.py"
     
-    print(f"Running HackerNews pipeline from: {script_dir}")
+    print(f"Running HackerNews pipeline from: {dlt_dir}")
     
-    # Run the pipeline script
+    # Run the pipeline script from dlt/ directory so .dlt/secrets.toml is found
     result = subprocess.run(
         [sys.executable, str(pipeline_script)],
-        cwd=str(script_dir),
+        cwd=str(dlt_dir),
         capture_output=True,
         text=True,
     )
