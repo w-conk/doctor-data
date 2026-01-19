@@ -1,2 +1,2 @@
-select * from {{source('hackernews', 'hackernews___items')}}
+select * from {{source('hackernews', 'hackernews__items')}}
 where type = 'comment'
