@@ -1,0 +1,42 @@
+sources:
+  - name: hackernews
+    database: dlt  
+    schema: dlt  
+    tables:
+      - name: hackernews__items
+        description: "HackerNews items - stories, comments, etc."
+        columns:
+          - name: id
+            description: "Item ID"
+            type: int64
+          - name: by
+            description: "Item author"
+            type: string
+          - name: title
+            description: "Item title"
+            type: string
+          - name: url
+            description: "Item URL"
+            type: string
+          - name: text
+            description: "Item text"
+            type: string
+          - name: type
+            description: "Item type"
+            type: string
+          - name: time
+            description: "Item time"
+            type: int64
+          - name: score
+            description: "Item score"
+            type: int64
+          - name: descendants
+            description: "Item descendants"
+            type: int64
+          - name: parent
+            description: "Item parent"
+            type: int64
+      - name: hackernews__users
+        description: "HackerNews users"
+      - name: hackernews__items_kids
+        description: "HackerNews items kids"
