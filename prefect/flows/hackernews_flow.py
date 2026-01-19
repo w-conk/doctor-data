@@ -13,8 +13,8 @@ import subprocess
 @task(name="run_hackernews_pipeline", log_prints=True)
 def run_hackernews_dlt_pipeline():
     """Run the HackerNews dlt pipeline."""
-    # Get the path to the dlt pipeline script
-    project_root = Path(__file__).parent.parent
+    #get path to the dlt pipeline script
+    project_root = Path(__file__).parent.parent.parent
     pipeline_script = project_root / "dlt" / "hacker-news" / "hackernews-load.py"
     script_dir = pipeline_script.parent
     
