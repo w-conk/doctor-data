@@ -3,9 +3,5 @@ sources:
     database: dlt  
     schema: dlt  
     tables:
-      - name: hackernews___topstories
-      - name: hackernews___newstories
-      - name: hackernews___beststories
-      - name: hackernews___items
-      - name: hackernews___items__kids
-      - name: hackernews___users
+      - name: items
+      - name: users
