@@ -44,7 +44,7 @@ def hackernews_ingestion_flow():
 
 if __name__ == "__main__":
     # Use from_source with local directory path - this works better with process workers
-    # The flow will run every 12 hours
+    # The flow will run every 4 hours with smaller batches (2,000 items per run)
     from prefect import flow
     
     flow.from_source(
@@ -52,6 +52,6 @@ if __name__ == "__main__":
         entrypoint="prefect/flows/hackernews_flow.py:hackernews_ingestion_flow"
     ).serve(
         name="hackernews-daily",
-        cron="0 */12 * * *",
+        cron="0 */4 * * *",  # Every 4 hours
         tags=["hackernews", "daily"],
     )
