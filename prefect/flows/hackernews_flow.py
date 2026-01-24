@@ -13,10 +13,9 @@ import subprocess
 @task(name="run_hackernews_pipeline", log_prints=True)
 def run_hackernews_dlt_pipeline():
     """Run the HackerNews dlt pipeline."""
-    # Use absolute path to the actual repo location (not temp Git clone)
-    # This ensures dlt finds .dlt/secrets.toml which isn't in Git
-    actual_repo_path = Path("/home/will-data/repos/doctor-data")
-    dlt_dir = actual_repo_path / "dlt"
+    # Get paths - run from dlt/ directory so dlt finds .dlt/secrets.toml
+    project_root = Path("/home/will-data/repos/doctor-data")
+    dlt_dir = project_root / "dlt"
     pipeline_script = dlt_dir / "hacker-news" / "hackernews-load.py"
     
     # Run the pipeline script from dlt/ directory so .dlt/secrets.toml is found
@@ -44,18 +43,12 @@ def hackernews_ingestion_flow():
 
 
 if __name__ == "__main__":
-    # Deploy using Git storage - works better with process workers
+    # Serve with scheduling - creates a deployment that runs on a schedule
     # The flow will run every 12 hours
-    # Git storage preserves directory structure when Prefect clones the repo
-    # Job variables point dlt to the original secrets location (not in Git)
-    from prefect import flow
-    
-    flow.from_source(
-        source="https://github.com/w-conk/doctor-data.git",
-        entrypoint="prefect/flows/hackernews_flow.py:hackernews_ingestion_flow"
-    ).deploy(
+    # IMPORTANT: Run this from the project root: python prefect/flows/hackernews_flow.py
+    # This uses local storage which works with process workers when run from the repo
+    hackernews_ingestion_flow.serve(
         name="hackernews-daily",
-        work_pool_name="default",
         cron="0 */12 * * *",
         tags=["hackernews", "daily"],
     )
