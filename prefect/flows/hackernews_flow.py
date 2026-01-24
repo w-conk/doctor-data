@@ -57,11 +57,11 @@ def hackernews_ingestion_flow():
 
 
 if __name__ == "__main__":
-    # Run with scheduling - this creates a deployment that runs on a schedule
+    # Serve with scheduling - creates a deployment that runs on a schedule
     # The flow will run every 12 hours
+    # After creating, set work pool via CLI: prefect deployment set-work-pool hackernews_ingestion/hackernews-daily --pool default
     hackernews_ingestion_flow.serve(
         name="hackernews-daily",
         cron="0 */12 * * *",
         tags=["hackernews", "daily"],
-        work_pool="default",  # Must match: prefect worker start --pool default
     )
