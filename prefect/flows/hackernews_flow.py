@@ -13,12 +13,11 @@ import subprocess
 @task(name="run_hackernews_pipeline", log_prints=True)
 def run_hackernews_dlt_pipeline():
     """Run the HackerNews dlt pipeline."""
-    # Get paths - run from dlt/ directory so dlt finds .dlt/secrets.toml
-    project_root = Path(__file__).parent.parent.parent
-    dlt_dir = project_root / "dlt"
+    # Use absolute path to the actual repo location (not temp Git clone)
+    # This ensures dlt finds .dlt/secrets.toml which isn't in Git
+    actual_repo_path = Path("/home/will-data/repos/doctor-data")
+    dlt_dir = actual_repo_path / "dlt"
     pipeline_script = dlt_dir / "hacker-news" / "hackernews-load.py"
-    
-    print(f"Running HackerNews pipeline from: {dlt_dir}")
     
     # Run the pipeline script from dlt/ directory so .dlt/secrets.toml is found
     result = subprocess.run(
@@ -28,38 +27,27 @@ def run_hackernews_dlt_pipeline():
         text=True,
     )
     
-    # Print output
-    if result.stdout:
-        print(result.stdout)
-    if result.stderr:
-        print(result.stderr, file=sys.stderr)
-    
-    # Raise exception if pipeline failed
+    # Raise exception if pipeline failed (Prefect UI will show the error)
     if result.returncode != 0:
         raise RuntimeError(
             f"Pipeline failed with return code {result.returncode}\n"
             f"Error output: {result.stderr}"
         )
     
-    print("Pipeline completed successfully!")
     return result.returncode
 
 
 @flow(name="hackernews_ingestion", log_prints=True)
 def hackernews_ingestion_flow():
     """Main flow for HackerNews data ingestion."""
-    print("Starting HackerNews ingestion flow...")
-    
-    result = run_hackernews_dlt_pipeline()
-    
-    print(f"HackerNews ingestion completed successfully!")
-    return result
+    return run_hackernews_dlt_pipeline()
 
 
 if __name__ == "__main__":
     # Deploy using Git storage - works better with process workers
     # The flow will run every 12 hours
     # Git storage preserves directory structure when Prefect clones the repo
+    # Job variables point dlt to the original secrets location (not in Git)
     from prefect import flow
     
     flow.from_source(
