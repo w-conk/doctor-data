@@ -57,18 +57,12 @@ def hackernews_ingestion_flow():
 
 
 if __name__ == "__main__":
-    # Deploy with scheduling - creates a deployment that runs on a schedule
+    # Serve with scheduling - creates a deployment that runs on a schedule
     # The flow will run every 12 hours
-    # Using deploy() with work_pool_name for process workers
-    from pathlib import Path
-    
-    project_root = Path(__file__).parent.parent.parent
-    
-    hackernews_ingestion_flow.deploy(
+    # IMPORTANT: Run this script from the project root: python prefect/flows/hackernews_flow.py
+    # This ensures the entrypoint path is correct
+    hackernews_ingestion_flow.serve(
         name="hackernews-daily",
-        work_pool_name="default",
         cron="0 */12 * * *",
         tags=["hackernews", "daily"],
-        # Use local file system storage with absolute path
-        path=str(project_root),
     )
