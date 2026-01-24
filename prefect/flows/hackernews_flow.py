@@ -43,11 +43,14 @@ def hackernews_ingestion_flow():
 
 
 if __name__ == "__main__":
-    # Serve with scheduling - creates a deployment that runs on a schedule
+    # Use from_source with local directory path - this works better with process workers
     # The flow will run every 12 hours
-    # IMPORTANT: Run this from the project root: python prefect/flows/hackernews_flow.py
-    # This uses local storage which works with process workers when run from the repo
-    hackernews_ingestion_flow.serve(
+    from prefect import flow
+    
+    flow.from_source(
+        source="/home/will-data/repos/doctor-data",
+        entrypoint="prefect/flows/hackernews_flow.py:hackernews_ingestion_flow"
+    ).serve(
         name="hackernews-daily",
         cron="0 */12 * * *",
         tags=["hackernews", "daily"],
