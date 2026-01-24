@@ -63,5 +63,5 @@ if __name__ == "__main__":
         name="hackernews-daily",
         cron="0 */12 * * *",
         tags=["hackernews", "daily"],
-        work_pool_name="default",  # Must match: prefect worker start --pool default
+        work_pool="default",  # Must match: prefect worker start --pool default
     )
