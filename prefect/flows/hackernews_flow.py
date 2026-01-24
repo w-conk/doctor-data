@@ -62,5 +62,6 @@ if __name__ == "__main__":
     hackernews_ingestion_flow.serve(
         name="hackernews-daily",
         cron="0 */12 * * *",
-        tags=["hackernews", "daily"]
+        tags=["hackernews", "daily"],
+        work_pool_name="default",  # Must match: prefect worker start --pool default
     )
