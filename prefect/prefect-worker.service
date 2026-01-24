@@ -1,0 +1,19 @@
+[Unit]
+Description=Prefect Worker Service
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=will-data
+Group=will-data
+WorkingDirectory=/home/will-data/repos/doctor-data
+Environment="PATH=/home/will-data/repos/doctor-data/venv/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/home/will-data/repos/doctor-data/venv/bin/prefect worker start --pool default --type process
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
